@@ -1,0 +1,9 @@
+# 文件开头说明：本忽略规则只作用于百宝箱项目，避免把本地依赖、浏览器验证快照和运行日志误纳入版本管理。
+
+app/node_modules/
+.playwright-cli/
+logs/*.log
+tmp/
+output/
+archive/
+tools/realesrgan-ncnn-vulkan/

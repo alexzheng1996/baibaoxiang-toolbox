@@ -1,0 +1,15 @@
+{
+  "name": "baibaoxiang-toolbox",
+  "version": "1.0.0",
+  "private": true,
+  "description": "本地百宝箱工具站，固定运行在 2332 端口。",
+  "main": "server.js",
+  "scripts": {
+    "start": "PORT=2332 node server.js",
+    "test": "node --test ../tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "qrcode": "^1.5.4"
+  }
+}
