@@ -1,6 +1,7 @@
 /*
  * 文件开头说明：本样式文件将百宝箱调整为接近 3198 工作台的蓝白高密度页面风格。
  * 参考点包括浅蓝侧栏、柔和白卡片、蓝色主按钮、弱阴影和紧凑工具条；主内容用限宽和分组避免大屏横向拉伸。
+ * 图片批量 2K 区域包含“选择文件夹 + 手动路径输入”的组合布局，便于本机 macOS 使用和手动兜底。
  */
 
 :root {
@@ -754,6 +755,88 @@ h3 {
   font-size: 0.78rem;
 }
 
+.batch-upscale-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(180px, 0.6fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.folder-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.folder-input-row input {
+  min-width: 0;
+}
+
+.folder-input-row button {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.batch-summary {
+  border: 1px solid #dbe5f2;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: #36577f;
+  background: var(--panel-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.batch-result-list {
+  display: grid;
+  gap: 8px;
+}
+
+.batch-result-item {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 0.45fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  border: 1px solid #dbe5f2;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: var(--panel-soft);
+}
+
+.batch-result-item span {
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: #166534;
+  background: #dcfce7;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.batch-result-item.is-failed span {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.batch-result-item strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #17345e;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.batch-result-item code {
+  min-width: 0;
+  overflow: hidden;
+  color: #5f738f;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .upscale-preview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1027,10 +1110,16 @@ h3 {
   .check-row,
   .hint-box,
   .upscale-meta,
+  .batch-summary,
+  .batch-result-item,
   .upscale-preview {
     color: var(--muted-blue);
     border-color: var(--line);
     background: var(--panel-soft);
+  }
+
+  .batch-result-item strong {
+    color: var(--ink-strong);
   }
 
   .upscale-preview figcaption {
@@ -1102,6 +1191,11 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .batch-upscale-grid,
+  .batch-result-item {
+    grid-template-columns: 1fr;
+  }
+
   .quick-grid a:nth-child(2n),
   .clock-card:nth-child(2n),
   .metric-card:nth-child(2n) {
@@ -1139,7 +1233,9 @@ h3 {
   .prefix-grid,
   .clock-grid,
   .metric-grid,
-  .upscale-preview-grid {
+  .upscale-preview-grid,
+  .batch-upscale-grid,
+  .batch-result-item {
     grid-template-columns: 1fr;
   }
 
