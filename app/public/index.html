@@ -1,4 +1,8 @@
 <!doctype html>
+<!--
+  文件开头说明：本页面负责百宝箱工具站的页面结构和工具入口排序。
+  当前按高频运营使用优先展示单位换算、汇率换算和商品图高清放大，格式转换下沉到底部。
+-->
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -22,7 +26,6 @@
         </a>
 
         <nav class="tool-nav">
-          <a href="#format">格式转换</a>
           <a href="#units">单位换算</a>
           <a href="#currency">汇率换算</a>
           <a href="#image-upscale">图片放大</a>
@@ -32,6 +35,7 @@
           <a href="#dev">开发小工具</a>
           <a href="#text">文本处理</a>
           <a href="#amazon">跨境简算</a>
+          <a href="#format">格式转换</a>
         </nav>
 
         <div class="sidebar-note">
@@ -58,13 +62,9 @@
         </header>
 
         <section class="quick-grid" aria-label="常用入口">
-          <a href="#format">
-            <span>格式</span>
-            <strong>JSON / CSV</strong>
-          </a>
-          <a href="#qr">
-            <span>二维码</span>
-            <strong>生成 PNG</strong>
+          <a href="#units">
+            <span>单位</span>
+            <strong>尺寸 / 重量</strong>
           </a>
           <a href="#currency">
             <span>汇率</span>
@@ -78,75 +78,13 @@
             <span>运营</span>
             <strong>ACOS 简算</strong>
           </a>
+          <a href="#format">
+            <span>格式</span>
+            <strong>JSON / CSV</strong>
+          </a>
         </section>
 
-        <section id="format" class="tool-section">
-          <div class="section-heading">
-            <h2>格式转换</h2>
-            <p>处理常见文本格式，适合临时整理数据、接口内容和运营素材。</p>
-          </div>
-
-          <div class="tool-card span-2">
-            <div class="tool-card-head">
-              <div>
-                <h3>JSON 格式化 / 压缩</h3>
-                <p>把混乱 JSON 整理成可读格式，也可以压缩成单行。</p>
-              </div>
-              <div class="action-row">
-                <button type="button" data-action="format-json">格式化</button>
-                <button type="button" data-action="minify-json">压缩</button>
-              </div>
-            </div>
-            <textarea id="jsonInput" spellcheck="false" placeholder='例如：{"sku":"A001","qty":12}'></textarea>
-            <div class="output-wrap">
-              <pre id="jsonOutput" class="output-box">结果会显示在这里</pre>
-              <button type="button" class="ghost" data-copy="#jsonOutput">复制结果</button>
-            </div>
-          </div>
-
-          <div class="tool-card">
-            <h3>CSV / JSON 互转</h3>
-            <p>适合把表格片段和结构化数据互相转换。</p>
-            <label for="csvInput">输入内容</label>
-            <textarea id="csvInput" spellcheck="false" placeholder="sku,qty&#10;A001,12"></textarea>
-            <div class="action-row">
-              <button type="button" data-action="csv-to-json">CSV 转 JSON</button>
-              <button type="button" data-action="json-to-csv">JSON 转 CSV</button>
-            </div>
-            <pre id="csvOutput" class="output-box">结果会显示在这里</pre>
-            <button type="button" class="ghost" data-copy="#csvOutput">复制结果</button>
-          </div>
-
-          <div class="tool-card">
-            <h3>Base64 / URL 编解码</h3>
-            <p>处理链接参数、简单文本编码和排查接口字段。</p>
-            <label for="codecInput">输入内容</label>
-            <textarea id="codecInput" spellcheck="false" placeholder="输入要编码或解码的内容"></textarea>
-            <div class="button-grid">
-              <button type="button" data-action="base64-encode">Base64 编码</button>
-              <button type="button" data-action="base64-decode">Base64 解码</button>
-              <button type="button" data-action="url-encode">URL 编码</button>
-              <button type="button" data-action="url-decode">URL 解码</button>
-            </div>
-            <pre id="codecOutput" class="output-box">结果会显示在这里</pre>
-            <button type="button" class="ghost" data-copy="#codecOutput">复制结果</button>
-          </div>
-
-          <div class="tool-card span-2">
-            <h3>Markdown 转 HTML 预览</h3>
-            <p>轻量预览标题、列表、引用、粗体和链接，适合快速检查文案结构。</p>
-            <textarea id="markdownInput" spellcheck="false" placeholder="# 标题&#10;&#10;- 要点一&#10;- 要点二"></textarea>
-            <div class="action-row">
-              <button type="button" data-action="markdown-preview">生成预览</button>
-              <button type="button" class="ghost" data-copy="#markdownOutput">复制 HTML</button>
-            </div>
-            <div class="split-preview">
-              <pre id="markdownOutput" class="output-box">HTML 会显示在这里</pre>
-              <article id="markdownPreview" class="preview-box">预览会显示在这里</article>
-            </div>
-          </div>
-        </section>
-
+        <!-- 高频运营入口优先展示，格式转换下沉到底部，便于日常打开后先处理换算和图片。 -->
         <div class="section-pair">
           <section id="units" class="tool-section">
           <div class="section-heading">
@@ -283,6 +221,41 @@
             </div>
 
             <div id="upscaleMeta" class="upscale-meta">支持 PNG、JPG、WebP；建议原图边长不低于 800px，4K 输出会更慢。</div>
+          </div>
+
+          <div class="tool-card span-2 image-upscale-card">
+            <div class="tool-card-head">
+              <div>
+                <h3>AI 批量 2K 队列</h3>
+                <p>默认按升级后的 Real-ESRGAN 原生 4x 流程处理，再缩回 2048 并输出 JPG。</p>
+              </div>
+              <div class="status-pill" id="batchUpscaleStatus">等待输入文件夹</div>
+            </div>
+
+            <div class="batch-upscale-grid">
+              <label>
+                图片文件夹路径
+                <span class="folder-input-row">
+                  <input id="batchFolderPath" type="text" placeholder="/Users/alexwork/Desktop/product-images" />
+                  <button type="button" class="ghost" id="batchPickFolder">选择文件夹</button>
+                </span>
+              </label>
+              <label>
+                输出长边
+                <select id="batchTargetLongEdge">
+                  <option value="2048" selected>2048，推荐亚马逊商品图</option>
+                </select>
+              </label>
+              <button type="button" id="batchUpscaleRun">开始批量 2K</button>
+            </div>
+
+            <div class="hint-box">
+              <strong>输出规则</strong>
+              <p>只处理 JPG、PNG、WebP；跳过已经以 2K_ 开头的图片；输出到原图同目录，例如 A001.png 会生成 2K_A001.jpg。当前使用 realesrgan-x4plus、tile 2048、原生 4x 后缩回 2048，通常约 10-12 秒/张；review/fail 结果需要人工抽检。</p>
+            </div>
+
+            <div class="batch-summary" id="batchUpscaleSummary">尚未开始批量处理。</div>
+            <div class="batch-result-list" id="batchUpscaleResults" aria-live="polite"></div>
           </div>
         </section>
 
@@ -469,6 +442,73 @@
               <button type="button" data-action="amazon-calc">计算</button>
             </div>
             <div id="amazonResult" class="metric-grid"></div>
+          </div>
+        </section>
+
+        <section id="format" class="tool-section">
+          <div class="section-heading">
+            <h2>格式转换</h2>
+            <p>处理常见文本格式，适合临时整理数据、接口内容和运营素材。</p>
+          </div>
+
+          <div class="tool-card span-2">
+            <div class="tool-card-head">
+              <div>
+                <h3>JSON 格式化 / 压缩</h3>
+                <p>把混乱 JSON 整理成可读格式，也可以压缩成单行。</p>
+              </div>
+              <div class="action-row">
+                <button type="button" data-action="format-json">格式化</button>
+                <button type="button" data-action="minify-json">压缩</button>
+              </div>
+            </div>
+            <textarea id="jsonInput" spellcheck="false" placeholder='例如：{"sku":"A001","qty":12}'></textarea>
+            <div class="output-wrap">
+              <pre id="jsonOutput" class="output-box">结果会显示在这里</pre>
+              <button type="button" class="ghost" data-copy="#jsonOutput">复制结果</button>
+            </div>
+          </div>
+
+          <div class="tool-card">
+            <h3>CSV / JSON 互转</h3>
+            <p>适合把表格片段和结构化数据互相转换。</p>
+            <label for="csvInput">输入内容</label>
+            <textarea id="csvInput" spellcheck="false" placeholder="sku,qty&#10;A001,12"></textarea>
+            <div class="action-row">
+              <button type="button" data-action="csv-to-json">CSV 转 JSON</button>
+              <button type="button" data-action="json-to-csv">JSON 转 CSV</button>
+            </div>
+            <pre id="csvOutput" class="output-box">结果会显示在这里</pre>
+            <button type="button" class="ghost" data-copy="#csvOutput">复制结果</button>
+          </div>
+
+          <div class="tool-card">
+            <h3>Base64 / URL 编解码</h3>
+            <p>处理链接参数、简单文本编码和排查接口字段。</p>
+            <label for="codecInput">输入内容</label>
+            <textarea id="codecInput" spellcheck="false" placeholder="输入要编码或解码的内容"></textarea>
+            <div class="button-grid">
+              <button type="button" data-action="base64-encode">Base64 编码</button>
+              <button type="button" data-action="base64-decode">Base64 解码</button>
+              <button type="button" data-action="url-encode">URL 编码</button>
+              <button type="button" data-action="url-decode">URL 解码</button>
+            </div>
+            <pre id="codecOutput" class="output-box">结果会显示在这里</pre>
+            <button type="button" class="ghost" data-copy="#codecOutput">复制结果</button>
+          </div>
+
+          <div class="tool-card span-2">
+            <h3>Markdown 转 HTML 预览</h3>
+            <p>轻量预览标题、列表、引用、粗体和链接，适合快速检查文案结构。</p>
+            <textarea id="markdownInput" spellcheck="false" placeholder="# 标题&#10;&#10;- 要点一&#10;- 要点二"></textarea>
+            <div class="action-row">
+              <button type="button" data-action="markdown-preview">生成预览</button>
+              <button type="button" class="ghost" data-copy="#markdownOutput">复制 HTML</button>
+            </div>
+            <div class="split-preview">
+              <pre id="markdownOutput" class="output-box">HTML 会显示在这里</pre>
+              <article id="markdownPreview" class="preview-box">预览会显示在这里</article>
+            </div>
           </div>
         </section>
       </main>

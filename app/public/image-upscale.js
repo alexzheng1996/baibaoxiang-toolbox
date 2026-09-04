@@ -1,6 +1,7 @@
 /*
  * 文件开头说明：本文件负责“商品图高清放大”的浏览器本地处理逻辑。
  * 当前工具优先服务亚马逊商品图，采用保守 Canvas 放大和轻微增强，避免白底、边缘和真实材质被过度处理。
+ * AI 批量 2K 区域调用本机 Real-ESRGAN 原生 4x 后缩回 2048，结果以 `2K_` 前缀保存回原目录。
  */
 
 const upscaleState = {
@@ -29,12 +30,26 @@ function getUpscaleNodes() {
     originalPreview: document.querySelector("#upscaleOriginalPreview"),
     originalPlaceholder: document.querySelector("#upscaleOriginalPlaceholder"),
     resultCanvas: document.querySelector("#upscaleCanvas"),
-    resultPlaceholder: document.querySelector("#upscaleResultPlaceholder")
+    resultPlaceholder: document.querySelector("#upscaleResultPlaceholder"),
+    batchFolderPath: document.querySelector("#batchFolderPath"),
+    batchPickFolder: document.querySelector("#batchPickFolder"),
+    batchTargetLongEdge: document.querySelector("#batchTargetLongEdge"),
+    batchRun: document.querySelector("#batchUpscaleRun"),
+    batchStatus: document.querySelector("#batchUpscaleStatus"),
+    batchSummary: document.querySelector("#batchUpscaleSummary"),
+    batchResults: document.querySelector("#batchUpscaleResults")
   };
 }
 
 function setUpscaleStatus(message, tone = "idle") {
   const status = document.querySelector("#upscaleStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.tone = tone;
+}
+
+function setBatchStatus(message, tone = "idle") {
+  const status = document.querySelector("#batchUpscaleStatus");
   if (!status) return;
   status.textContent = message;
   status.dataset.tone = tone;
@@ -296,6 +311,114 @@ async function processUpscale() {
   }
 }
 
+function renderBatchResults(payload) {
+  const nodes = getUpscaleNodes();
+  const reportText = payload.report?.comparisonPath ? ` 对比图：${payload.report.comparisonPath}` : "";
+  const integrity = payload.integrity || { pass: 0, review: 0, fail: 0 };
+  nodes.batchSummary.textContent = [
+    `共 ${payload.total} 张，成功 ${payload.succeeded} 张，失败 ${payload.failed} 张。`,
+    `目标长边 ${payload.targetLongEdge}px，模型 ${payload.model || "realesrgan-x4plus"}，tile ${payload.tileSize || 2048}。`,
+    `平均约 ${Number(payload.avgTotalSeconds || 0).toFixed(2)} 秒/张；完整性 pass ${integrity.pass}、review ${integrity.review}、fail ${integrity.fail}。`,
+    reportText
+  ].join("");
+
+  if (!payload.results.length) {
+    nodes.batchResults.innerHTML = '<div class="batch-result-item">没有找到需要处理的图片，或文件都已带 2K_ 前缀。</div>';
+    return;
+  }
+
+  nodes.batchResults.innerHTML = payload.results
+    .map((item) => {
+      const fileName = item.sourcePath.split("/").pop();
+      const outputText = item.status === "done" ? item.outputPath : item.message;
+      const detailText =
+        item.status === "done"
+          ? `完整性：${item.integrityStatus || "review"}；耗时：${Number(item.totalSeconds || 0).toFixed(2)} 秒；白底保护：${
+              item.whiteBgEnabled ? "已启用" : "未启用"
+            }；文件：${((item.fileSizeBytes || 0) / 1024 / 1024).toFixed(2)} MB`
+          : item.message;
+      return `
+        <article class="batch-result-item ${item.status === "done" ? "is-done" : "is-failed"}">
+          <span>${item.status === "done" ? "完成" : "失败"}</span>
+          <strong>${fileName}</strong>
+          <code>${outputText}</code>
+          <small>${detailText}</small>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+async function runBatchUpscale() {
+  const nodes = getUpscaleNodes();
+  const folderPath = nodes.batchFolderPath.value.trim();
+
+  if (!folderPath) {
+    setBatchStatus("请输入文件夹路径", "error");
+    return;
+  }
+
+  try {
+    setBatchStatus("正在队列处理", "working");
+    nodes.batchRun.disabled = true;
+    nodes.batchSummary.textContent = "正在逐张处理，请不要关闭本地服务。";
+    nodes.batchResults.innerHTML = "";
+
+    const response = await fetch("/api/image-upscale/batch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        folderPath,
+        targetLongEdge: Number(nodes.batchTargetLongEdge.value)
+      })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || "批量处理失败。");
+    }
+
+    renderBatchResults(payload);
+    setBatchStatus(payload.failed ? "部分完成" : "批量完成", payload.failed ? "error" : "done");
+  } catch (error) {
+    nodes.batchSummary.textContent = error.message;
+    setBatchStatus("处理失败", "error");
+  } finally {
+    nodes.batchRun.disabled = false;
+  }
+}
+
+async function pickBatchFolder() {
+  const nodes = getUpscaleNodes();
+
+  try {
+    // 只把用户选择的本机目录路径填入输入框，不自动启动队列，避免误处理整文件夹图片。
+    setBatchStatus("正在打开文件夹选择窗口", "working");
+    nodes.batchPickFolder.disabled = true;
+
+    const response = await fetch("/api/system/pick-folder", {
+      method: "POST"
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || "选择文件夹失败，请手动输入路径。");
+    }
+
+    if (payload.cancelled) {
+      setBatchStatus("已取消选择", "idle");
+      return;
+    }
+
+    nodes.batchFolderPath.value = payload.folderPath;
+    setBatchStatus("文件夹已选择", "ready");
+  } catch (error) {
+    setBatchStatus(error.message, "error");
+  } finally {
+    nodes.batchPickFolder.disabled = false;
+  }
+}
+
 function initImageUpscaleTool() {
   const nodes = getUpscaleNodes();
   if (!nodes.input || !nodes.run) {
@@ -305,6 +428,13 @@ function initImageUpscaleTool() {
   setUpscaleStatus("等待上传图片");
   nodes.input.addEventListener("change", handleUpscaleFile);
   nodes.run.addEventListener("click", processUpscale);
+  if (nodes.batchRun) {
+    setBatchStatus("等待输入文件夹");
+    if (nodes.batchPickFolder) {
+      nodes.batchPickFolder.addEventListener("click", pickBatchFolder);
+    }
+    nodes.batchRun.addEventListener("click", runBatchUpscale);
+  }
 }
 
 initImageUpscaleTool();

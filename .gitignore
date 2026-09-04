@@ -3,6 +3,7 @@
 app/node_modules/
 .playwright-cli/
 logs/*.log
+app/logs/*.log
 tmp/
 output/
 archive/
